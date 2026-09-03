@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .config import AppPaths
 from .anki import combined_coverage
+from .anki_importer import ensure_inventoried_source, import_apkg
 from .database import connect, migrate
 from .inventory import inventory_source, save_inventory
 
@@ -20,6 +21,9 @@ def build_parser() -> argparse.ArgumentParser:
     inventory.add_argument("--save", action="store_true", help="Save metadata to the private database")
     anki = commands.add_parser("anki-report", help="Inspect Anki structure and print a content-free coverage report")
     anki.add_argument("packages", nargs="+", type=Path)
+    anki_import = commands.add_parser("anki-import", help="Normalize approved Anki packages into the private curriculum database")
+    anki_import.add_argument("packages", nargs="+", type=Path)
+    anki_import.add_argument("--collection", default="Japanese study materials")
     return parser
 
 
@@ -37,6 +41,24 @@ def main(argv: list[str] | None = None) -> None:
         return
     if args.command == "anki-report":
         print(json.dumps(combined_coverage(args.packages), ensure_ascii=False, indent=2))
+        return
+    if args.command == "anki-import":
+        paths.create_private_directories()
+        connection = connect(paths.database)
+        migrate(connection)
+        roots = {package.expanduser().resolve(strict=True).parent for package in args.packages}
+        if len(roots) != 1:
+            raise ValueError("All packages in one import command must share a source directory")
+        root = roots.pop()
+        inventoried = {record.path: record for record in inventory_source(root, {".apkg"})}
+        results = []
+        for package in args.packages:
+            resolved = package.expanduser().resolve(strict=True)
+            record = inventoried[resolved]
+            source_file_id = ensure_inventoried_source(connection, args.collection, root, record)
+            results.append(import_apkg(connection, source_file_id, resolved))
+        connection.close()
+        print(json.dumps({"schema": "AnkiImportBatch/v1", "database": str(paths.database), "results": results}, ensure_ascii=False, indent=2))
         return
     records = inventory_source(args.source)
     result = {"source": str(args.source.resolve()), "files": [{"relative_path": item.relative_path, "kind": item.source_kind, "byte_size": item.byte_size, "sha256": item.sha256} for item in records], "saved": False}

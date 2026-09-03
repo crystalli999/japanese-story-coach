@@ -9,6 +9,9 @@
 - `concepts`, `concept_forms`, and `concept_senses` hold canonical curriculum knowledge.
 - `source_assertions` preserves each source's claim instead of overwriting conflicting meanings.
 - `concept_relations` represents prerequisites, conjugations, confusions, and semantic relationships.
+- `anki_note_models` and `anki_decks` preserve source structure.
+- `anki_notes` stores private source fields and tags; `anki_cards` preserves note/deck/template relationships.
+- `anki_media` and `anki_note_media` preserve manifest and note references without copying media binaries.
 
 ## Learner memory
 

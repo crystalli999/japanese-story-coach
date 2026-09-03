@@ -11,7 +11,7 @@ class DatabaseTests(unittest.TestCase):
     def test_migration_is_complete_and_idempotent(self):
         with TemporaryDirectory() as directory:
             connection = connect(Path(directory) / "coach.sqlite3")
-            self.assertEqual(["001_foundation.sql"], migrate(connection))
+            self.assertEqual(["001_foundation.sql", "002_anki_import.sql"], migrate(connection))
             self.assertEqual([], migrate(connection))
             tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
             self.assertTrue({"source_files", "source_assertions", "concepts", "mastery_states", "diagnostic_runs", "attempts", "review_events"}.issubset(tables))

@@ -49,6 +49,16 @@ python3 -m japanese_story_coach anki-report \
 
 The command opens a disposable copy of each Anki collection in SQLite query-only mode, validates its structure and media relationships, and removes the copy afterward. The JSON report includes counts, deck/model/field structure, field completeness, duplicates, warnings, and lesson-planning coverage. It excludes note text and source paths and never calls an external provider.
 
+Import approved, supported starter decks into the private database:
+
+```bash
+python3 -m japanese_story_coach anki-import \
+  "/path/to/Japanese_Hiragana.apkg" \
+  "/path/to/Genki_1_3rd_edition_with_sound_files.apkg"
+```
+
+Import is automatic after structural validation; there is no manual review gate. It is transactional and idempotent: reimporting refreshes the source-specific Anki rows and provenance without duplicating canonical concepts. Unsupported note models fail before curriculum rows are written. Media metadata and note relationships are imported, but media binaries remain inside the original package.
+
 ## Tests
 
 ```bash

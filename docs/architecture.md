@@ -19,6 +19,7 @@ The future plan should keep these concerns separate:
 - `database.py` and `migrations/`: versioned SQLite schema and migration runner
 - `inventory.py`: read-only metadata/SHA-256 inventory for `.apkg`, `.pdf`, `.txt`, and `.md`
 - `anki.py`: fail-closed APKG/SQLite inspection and content-free lesson-planning coverage reports
+- `anki_importer.py`: transactional profile-based normalization and provenance-preserving Anki import
 - `contracts.py`: neutral Anki/curriculum, selective-PDF, FSRS-compatible scheduler, lesson-planner, and story/quiz interfaces
 - `privacy.py`: explicit whitelist conversion from a lesson packet to an external story-provider payload
 - `providers.py`: transport-injected DeepSeek story boundary with no network implementation in Stage 1
@@ -43,3 +44,9 @@ Application framework and complete UI remain future decisions.
 APKG files remain unchanged. Only the collection database and media manifest are read, with size limits and duplicate-member checks. The collection is copied into a temporary directory, opened with SQLite `mode=ro`, `query_only`, and an integrity check, then deleted automatically. Reports expose structure and counts but omit note contents and absolute source paths.
 
 Coverage dimensions are vocabulary, reading, meaning, audio, lesson sequencing, and grammar. The first real Hiragana + Genki report confirms the decks are suitable for the structured vocabulary side of lesson planning but do not provide a grammar catalog.
+
+## Stage 2B Anki import
+
+Only explicitly supported note models are normalized. Hiragana notes become kana concepts; Genki notes become lexeme concepts keyed by normalized surface and reading. Exact note fields, tags, deck/card relationships, and media references remain private source records, while canonical concepts, forms, English senses, locators, and assertions support future lesson planning.
+
+Each package is validated and hash-matched to its inventory record before a transaction replaces that source's imported Anki rows. A package with an unknown model or unresolved relationship fails rather than guessing a mapping. Reimporting is safe and does not duplicate canonical concepts.
