@@ -39,6 +39,16 @@ python3 -m japanese_story_coach inventory "/path/to/your/materials"
 
 Add `--save` only when you intentionally want the hashes and file metadata recorded in the private database. This still does not extract Anki notes, PDF text, or scripts.
 
+Create a read-only, content-free Anki coverage report:
+
+```bash
+python3 -m japanese_story_coach anki-report \
+  "/path/to/Japanese_Hiragana.apkg" \
+  "/path/to/Genki_1_3rd_edition_with_sound_files.apkg"
+```
+
+The command opens a disposable copy of each Anki collection in SQLite query-only mode, validates its structure and media relationships, and removes the copy afterward. The JSON report includes counts, deck/model/field structure, field completeness, duplicates, warnings, and lesson-planning coverage. It excludes note text and source paths and never calls an external provider.
+
 ## Tests
 
 ```bash

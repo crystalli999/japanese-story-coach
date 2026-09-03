@@ -18,6 +18,7 @@ The future plan should keep these concerns separate:
 - `config.py`: private application paths and Git-repository separation guard
 - `database.py` and `migrations/`: versioned SQLite schema and migration runner
 - `inventory.py`: read-only metadata/SHA-256 inventory for `.apkg`, `.pdf`, `.txt`, and `.md`
+- `anki.py`: fail-closed APKG/SQLite inspection and content-free lesson-planning coverage reports
 - `contracts.py`: neutral Anki/curriculum, selective-PDF, FSRS-compatible scheduler, lesson-planner, and story/quiz interfaces
 - `privacy.py`: explicit whitelist conversion from a lesson packet to an external story-provider payload
 - `providers.py`: transport-injected DeepSeek story boundary with no network implementation in Stage 1
@@ -36,3 +37,9 @@ Source collections, files, locators, assertions, concepts, forms, and senses for
 - Raw books, decks, scripts, source paths, and personal review history are forbidden from external provider payloads.
 
 Application framework and complete UI remain future decisions.
+
+## Stage 2A Anki inspection
+
+APKG files remain unchanged. Only the collection database and media manifest are read, with size limits and duplicate-member checks. The collection is copied into a temporary directory, opened with SQLite `mode=ro`, `query_only`, and an integrity check, then deleted automatically. Reports expose structure and counts but omit note contents and absolute source paths.
+
+Coverage dimensions are vocabulary, reading, meaning, audio, lesson sequencing, and grammar. The first real Hiragana + Genki report confirms the decks are suitable for the structured vocabulary side of lesson planning but do not provide a grammar catalog.

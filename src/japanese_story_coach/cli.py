@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from .config import AppPaths
+from .anki import combined_coverage
 from .database import connect, migrate
 from .inventory import inventory_source, save_inventory
 
@@ -17,6 +18,8 @@ def build_parser() -> argparse.ArgumentParser:
     inventory.add_argument("source", type=Path)
     inventory.add_argument("--name", default="Japanese study materials")
     inventory.add_argument("--save", action="store_true", help="Save metadata to the private database")
+    anki = commands.add_parser("anki-report", help="Inspect Anki structure and print a content-free coverage report")
+    anki.add_argument("packages", nargs="+", type=Path)
     return parser
 
 
@@ -31,6 +34,9 @@ def main(argv: list[str] | None = None) -> None:
         applied = migrate(connection)
         connection.close()
         print(json.dumps({"data_root": str(paths.root), "database": str(paths.database), "migrations_applied": applied}, indent=2))
+        return
+    if args.command == "anki-report":
+        print(json.dumps(combined_coverage(args.packages), ensure_ascii=False, indent=2))
         return
     records = inventory_source(args.source)
     result = {"source": str(args.source.resolve()), "files": [{"relative_path": item.relative_path, "kind": item.source_kind, "byte_size": item.byte_size, "sha256": item.sha256} for item in records], "saved": False}
