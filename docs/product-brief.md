@@ -28,11 +28,15 @@ The initial product is personal and local-first. Broader distribution, accounts,
 
 Design an N5-only prototype and prove the diagnostic → adaptive lesson → quiz → memory-update loop before expanding to N4–N1.
 
-## Open product decisions
+## Approved first-prototype decisions
 
-- Initial platform: web, native Apple, or cross-platform
-- Local-only progress versus synchronization
-- Reviewed story library versus live story generation
-- Curriculum source and licensing
-- Exact motivation mechanics and tone
+- Mobile-first local web app/PWA; native packaging can be considered later.
+- Progress is local-first; synchronization remains a later decision.
+- Anki decks are the primary structured curriculum source. PDFs are selective gap-fill references rather than an automatic full import.
+- FSRS is the initial spaced-repetition scheduler behind a replaceable interface.
+- DeepSeek may generate original stories and multiple-choice quizzes from a locally prepared structured lesson packet only.
+- Raw source passages, files, paths, and personal review history are never provider inputs.
+- Generated content is romance-only and non-explicit in the first prototype.
+- Removing a source marks it inactive so historical learner evidence remains intelligible.
 
+Motivation mechanics and any future synchronization remain open product decisions.

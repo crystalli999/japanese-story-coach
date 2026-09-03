@@ -1,6 +1,6 @@
-# Architecture direction
+# Architecture
 
-No implementation architecture is approved yet.
+Stage 1 establishes a standard-library-first Python core and private SQLite database. Runtime data defaults to `~/Library/Application Support/Japanese Story Coach`, outside the Git repository, with owner-only directory and database permissions.
 
 The future plan should keep these concerns separate:
 
@@ -13,5 +13,26 @@ The future plan should keep these concerns separate:
 - Progress system: daily/weekly summaries and manga-readiness estimates
 - Private reference inventory: read-only metadata derived from permitted local sources
 
-Data schema, AI providers, application framework, and storage remain approval-gated decisions.
+## Implemented boundaries
 
+- `config.py`: private application paths and Git-repository separation guard
+- `database.py` and `migrations/`: versioned SQLite schema and migration runner
+- `inventory.py`: read-only metadata/SHA-256 inventory for `.apkg`, `.pdf`, `.txt`, and `.md`
+- `contracts.py`: neutral Anki/curriculum, selective-PDF, FSRS-compatible scheduler, lesson-planner, and story/quiz interfaces
+- `privacy.py`: explicit whitelist conversion from a lesson packet to an external story-provider payload
+- `providers.py`: transport-injected DeepSeek story boundary with no network implementation in Stage 1
+
+## Data separation
+
+Source collections, files, locators, assertions, concepts, forms, and senses form the curriculum side. Learners, diagnostics, mastery, sessions, attempts, mistakes, confusion pairs, review events, and preferences form the personal-progress side. Sources can become inactive without deleting learner history.
+
+## Approved direction
+
+- Anki is the primary structured curriculum source.
+- PDFs are selectively consulted only to fill demonstrated grammar or sequencing gaps.
+- FSRS is the initial scheduler behind a replaceable interface.
+- The local lesson planner chooses targets; DeepSeek may later receive only the resulting structured packet.
+- Generated content is romance-only and non-explicit for the first prototype.
+- Raw books, decks, scripts, source paths, and personal review history are forbidden from external provider payloads.
+
+Application framework and complete UI remain future decisions.

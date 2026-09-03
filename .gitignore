@@ -1,5 +1,15 @@
 .DS_Store
 .env
+.venv/
 __pycache__/
 *.py[cod]
-
+.pytest_cache/
+.DS_Store
+data/
+private-data/
+*.sqlite
+*.sqlite3
+*.db
+ocr-output/
+import-staging/
+source-media/

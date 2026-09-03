@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "japanese-story-coach"
+version = "0.1.0"
+description = "Local-first adaptive Japanese learning foundation"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+japanese-story-coach = "japanese_story_coach.cli:main"
+
+[tool.setuptools.package-data]
+japanese_story_coach = ["migrations/*.sql"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
