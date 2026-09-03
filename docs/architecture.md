@@ -24,6 +24,7 @@ The future plan should keep these concerns separate:
 - `privacy.py`: explicit whitelist conversion from a lesson packet to an external story-provider payload
 - `providers.py`: transport-injected DeepSeek story boundary with no network implementation in Stage 1
 - `grammar.py` and `curriculum/n5_grammar_v1.json`: validated, versioned N5 grammar seed and deterministic links to imported vocabulary
+- `learning.py`: repeatable placement diagnostics, learner-memory evidence, and prerequisite-aware local lesson planning
 
 ## Data separation
 
@@ -57,3 +58,9 @@ Each package is validated and hash-matched to its inventory record before a tran
 The application owns a practical beginner sequence of 24 grammar concepts. It stores bilingual English/Traditional Chinese explanations, formations, ordering, and directed prerequisite edges. The seed loader validates the complete graph before writing and refreshes it transactionally and idempotently.
 
 Each point declares a small set of vocabulary requirements used to teach or demonstrate it. Resolution searches active imported kana, kanji, and lexeme concepts by normalized form and optional reading. Exactly one candidate creates a link; zero or multiple candidates become explicit `missing` or `ambiguous` gaps. This boundary lets the future placement test and lesson planner reason about readiness without silently inventing curriculum mappings.
+
+## Stage 3 learning loop
+
+The placement engine creates a deterministic 36-question N5 run: 8 kana-reading, 16 vocabulary-meaning, and 12 grammar-recognition questions. Answer keys stay in the private database and are not included in the next-question response. Each answer writes an attempt and updates the matching current mastery confidence; a retake is a new run linked to its predecessor.
+
+The local planner walks the grammar sequence and selects the earliest unmastered point whose directed prerequisites meet the readiness threshold. It adds uniquely resolved teaching vocabulary plus up to four weak review concepts, persists the packet as a learning session, and preserves the approved romance-only, non-explicit boundary. It performs no network request; the existing privacy filter remains the only future bridge to DeepSeek.

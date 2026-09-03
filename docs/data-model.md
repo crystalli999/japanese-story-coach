@@ -1,4 +1,4 @@
-# Data model through Stage 3A
+# Data model through Stage 3
 
 ## Source knowledge
 
@@ -20,6 +20,7 @@
 
 - `learners` stores the local profile and approved content boundary.
 - `diagnostic_runs` supports retesting and historical linkage.
+- `diagnostic_items` stores the fixed concept, prompt, four choices, answer key, learner answer, and linked attempt for each placement question.
 - `mastery_states` tracks skill-specific difficulty, stability, retrievability, confidence, evidence, due time, and scheduler version.
 - `learning_sessions`, `attempts`, and `mistake_events` preserve learning evidence.
 - `confusion_pairs` records repeatedly confused concepts.
@@ -29,3 +30,5 @@
 Source deactivation does not cascade into concepts or learner history. Later importers must attach every derived assertion to a source locator.
 
 The grammar spine is internally curated application data rather than a claim extracted from a private source. Its `curriculum_version` and `internal_curated` provenance distinguish it from imported Anki assertions. It is a practical N5-oriented sequence, not an official JLPT syllabus.
+
+Diagnostic answers become immutable `attempts`; current confidence is the derived operational view in `mastery_states`. Grammar diagnostic evidence maps to the existing `comprehension` skill. Retakes create new runs and point to the run they supersede rather than overwriting earlier evidence. Generated lesson packets are persisted in `learning_sessions` without embedding source passages or paths.

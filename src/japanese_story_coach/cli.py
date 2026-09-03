@@ -10,6 +10,8 @@ from .anki_importer import ensure_inventoried_source, import_apkg
 from .database import connect, migrate
 from .inventory import inventory_source, save_inventory
 from .grammar import load_grammar_spine
+from .learning import (answer_diagnostic, create_learner, finish_diagnostic,
+                       next_diagnostic_question, plan_lesson, start_diagnostic)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -26,6 +28,21 @@ def build_parser() -> argparse.ArgumentParser:
     anki_import.add_argument("packages", nargs="+", type=Path)
     anki_import.add_argument("--collection", default="Japanese study materials")
     commands.add_parser("grammar-seed", help="Load the curated N5 grammar spine and link imported vocabulary")
+    learner = commands.add_parser("learner-create", help="Create a private local learner profile")
+    learner.add_argument("name")
+    diagnostic_start = commands.add_parser("diagnostic-start", help="Start a repeatable N5 placement diagnostic")
+    diagnostic_start.add_argument("learner_id", type=int)
+    diagnostic_next = commands.add_parser("diagnostic-next", help="Show the next unanswered diagnostic question")
+    diagnostic_next.add_argument("run_id", type=int)
+    diagnostic_answer = commands.add_parser("diagnostic-answer", help="Answer a diagnostic question using choice index 0-3")
+    diagnostic_answer.add_argument("run_id", type=int)
+    diagnostic_answer.add_argument("item_id", type=int)
+    diagnostic_answer.add_argument("choice_index", type=int)
+    diagnostic_finish = commands.add_parser("diagnostic-finish", help="Finish a fully answered diagnostic")
+    diagnostic_finish.add_argument("run_id", type=int)
+    lesson = commands.add_parser("lesson-plan", help="Create a local prerequisite-aware 15-minute lesson packet")
+    lesson.add_argument("learner_id", type=int)
+    lesson.add_argument("--minutes", type=int, default=15)
     return parser
 
 
@@ -69,6 +86,25 @@ def main(argv: list[str] | None = None) -> None:
         result = load_grammar_spine(connection)
         connection.close()
         result["database"] = str(paths.database)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return
+    if args.command in {"learner-create", "diagnostic-start", "diagnostic-next", "diagnostic-answer", "diagnostic-finish", "lesson-plan"}:
+        paths.create_private_directories()
+        connection = connect(paths.database)
+        migrate(connection)
+        if args.command == "learner-create":
+            result = {"schema": "Learner/v1", "learner_id": create_learner(connection, args.name), "name": args.name.strip()}
+        elif args.command == "diagnostic-start":
+            result = start_diagnostic(connection, args.learner_id)
+        elif args.command == "diagnostic-next":
+            result = next_diagnostic_question(connection, args.run_id) or {"complete": True, "run_id": args.run_id}
+        elif args.command == "diagnostic-answer":
+            result = answer_diagnostic(connection, args.run_id, args.item_id, args.choice_index)
+        elif args.command == "diagnostic-finish":
+            result = finish_diagnostic(connection, args.run_id)
+        else:
+            result = plan_lesson(connection, args.learner_id, args.minutes)
+        connection.close()
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return
     records = inventory_source(args.source)
