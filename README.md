@@ -4,7 +4,7 @@ A planned adaptive Japanese-learning application built around short, original BL
 
 ## Current stage
 
-Stage 1 local foundation is implemented. It creates a private SQLite database outside Git, inventories supported files by metadata and SHA-256 without importing their contents, and defines privacy-safe interfaces for future Anki, selective PDF, FSRS, lesson-planning, and DeepSeek story/quiz work. No corpus, OCR, model call, complete UI, or deployment is connected yet.
+Stage 3A is implemented. The private database contains the approved Hiragana and Genki imports plus an app-curated, versioned 24-point N5 grammar spine with explicit prerequisites and vocabulary links. No PDF/OCR import, model call, placement test, lesson planner, complete UI, or deployment is connected yet.
 
 ## Initial scope
 
@@ -58,6 +58,14 @@ python3 -m japanese_story_coach anki-import \
 ```
 
 Import is automatic after structural validation; there is no manual review gate. It is transactional and idempotent: reimporting refreshes the source-specific Anki rows and provenance without duplicating canonical concepts. Unsupported note models fail before curriculum rows are written. Media metadata and note relationships are imported, but media binaries remain inside the original package.
+
+Load or refresh the bundled N5 grammar spine after importing vocabulary:
+
+```bash
+python3 -m japanese_story_coach grammar-seed
+```
+
+This is a practical app-curated beginner sequence, not an official JLPT syllabus. The command is transactional and idempotent. Each grammar point records English and Traditional Chinese guidance, grammar prerequisites, and required vocabulary. Vocabulary is linked only when exactly one imported concept matches; missing and ambiguous requirements remain visible for later gap filling.
 
 ## Tests
 

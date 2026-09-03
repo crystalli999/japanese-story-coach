@@ -13,7 +13,7 @@ dependencies = []
 japanese-story-coach = "japanese_story_coach.cli:main"
 
 [tool.setuptools.package-data]
-japanese_story_coach = ["migrations/*.sql"]
+japanese_story_coach = ["migrations/*.sql", "curriculum/*.json"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

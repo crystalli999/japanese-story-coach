@@ -23,6 +23,7 @@ The future plan should keep these concerns separate:
 - `contracts.py`: neutral Anki/curriculum, selective-PDF, FSRS-compatible scheduler, lesson-planner, and story/quiz interfaces
 - `privacy.py`: explicit whitelist conversion from a lesson packet to an external story-provider payload
 - `providers.py`: transport-injected DeepSeek story boundary with no network implementation in Stage 1
+- `grammar.py` and `curriculum/n5_grammar_v1.json`: validated, versioned N5 grammar seed and deterministic links to imported vocabulary
 
 ## Data separation
 
@@ -50,3 +51,9 @@ Coverage dimensions are vocabulary, reading, meaning, audio, lesson sequencing, 
 Only explicitly supported note models are normalized. Hiragana notes become kana concepts; Genki notes become lexeme concepts keyed by normalized surface and reading. Exact note fields, tags, deck/card relationships, and media references remain private source records, while canonical concepts, forms, English senses, locators, and assertions support future lesson planning.
 
 Each package is validated and hash-matched to its inventory record before a transaction replaces that source's imported Anki rows. A package with an unknown model or unresolved relationship fails rather than guessing a mapping. Reimporting is safe and does not duplicate canonical concepts.
+
+## Stage 3A grammar spine
+
+The application owns a practical beginner sequence of 24 grammar concepts. It stores bilingual English/Traditional Chinese explanations, formations, ordering, and directed prerequisite edges. The seed loader validates the complete graph before writing and refreshes it transactionally and idempotently.
+
+Each point declares a small set of vocabulary requirements used to teach or demonstrate it. Resolution searches active imported kana, kanji, and lexeme concepts by normalized form and optional reading. Exactly one candidate creates a link; zero or multiple candidates become explicit `missing` or `ambiguous` gaps. This boundary lets the future placement test and lesson planner reason about readiness without silently inventing curriculum mappings.

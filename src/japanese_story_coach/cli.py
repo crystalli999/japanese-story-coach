@@ -9,6 +9,7 @@ from .anki import combined_coverage
 from .anki_importer import ensure_inventoried_source, import_apkg
 from .database import connect, migrate
 from .inventory import inventory_source, save_inventory
+from .grammar import load_grammar_spine
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -24,6 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
     anki_import = commands.add_parser("anki-import", help="Normalize approved Anki packages into the private curriculum database")
     anki_import.add_argument("packages", nargs="+", type=Path)
     anki_import.add_argument("--collection", default="Japanese study materials")
+    commands.add_parser("grammar-seed", help="Load the curated N5 grammar spine and link imported vocabulary")
     return parser
 
 
@@ -59,6 +61,15 @@ def main(argv: list[str] | None = None) -> None:
             results.append(import_apkg(connection, source_file_id, resolved))
         connection.close()
         print(json.dumps({"schema": "AnkiImportBatch/v1", "database": str(paths.database), "results": results}, ensure_ascii=False, indent=2))
+        return
+    if args.command == "grammar-seed":
+        paths.create_private_directories()
+        connection = connect(paths.database)
+        migrate(connection)
+        result = load_grammar_spine(connection)
+        connection.close()
+        result["database"] = str(paths.database)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
         return
     records = inventory_source(args.source)
     result = {"source": str(args.source.resolve()), "files": [{"relative_path": item.relative_path, "kind": item.source_kind, "byte_size": item.byte_size, "sha256": item.sha256} for item in records], "saved": False}
